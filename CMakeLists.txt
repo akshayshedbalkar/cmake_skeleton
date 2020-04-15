@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 ##Project name and type
 project(test)
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ##Define executables, libraries here with relative path
 # add_library(my_library STATIC src/my_test.cpp)

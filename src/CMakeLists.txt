@@ -1,3 +1,6 @@
+##Following subdirectories are part of the project
+# add_subdirectory(blabla)
+
 ##All .h files in this directory are to be included
 target_include_directories(my_test 
     PRIVATE 
@@ -13,6 +16,3 @@ target_include_directories(my_test
 ##All .cpp files in this directory are source files (Quick and dirty way to include sources)
 file(GLOB SOURCES "*.cpp")
 target_sources(my_test PRIVATE ${SOURCES})
-
-##Following subdirectories are part of the project
-# add_subdirectory(blabla)
