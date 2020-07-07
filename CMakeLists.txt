@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.13)
 project(test)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
 
 ##Define executables, libraries here with relative path
 # add_library(my_library STATIC src/my_test.cpp)
