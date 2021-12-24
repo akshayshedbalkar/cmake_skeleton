@@ -53,7 +53,29 @@ set_target_properties($PROJECT_NAME
         RUNTIME_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/bin\"
         ARCHIVE_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/lib\"
         LIBRARY_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/lib\"
-)"
+)
+
+##Helpful commands for various functionalities if needed
+# find_package(Boost COMPONENTS filesystem system iostreams)
+
+# if(\${CMAKE_SYSTEM_NAME} MATCHES \"Linux\")
+# elseif(\${CMAKE_SYSTEM_NAME} MATCHES \"Windows\")
+# endif()
+
+# configure_file(\${CMAKE_SOURCE_DIR}/stocks.config \${CMAKE_BINARY_DIR}/bin/stocks.config)
+
+# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#     COMMAND \${CMAKE_COMMAND} -E copy_if_different
+#     \"\${PROJECT_SOURCE_DIR}/extern/lib/libcurl-x64.dll\"
+#     $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
+# FILE(READ \${CMAKE_SOURCE_DIR}/src/main.h main)
+# STRING(REGEX REPLACE \"VERSION_MAJOR\ [0-9]*\" \"VERSION_MAJOR\ \${${PROJECT_NAME}_VERSION_MAJOR}\" main \"\${main}\")
+# FILE(WRITE \${CMAKE_SOURCE_DIR}/src/main.h \"\${main}\")
+
+# if(EXISTS \"\${CMAKE_SOURCE_DIR}/.git\" AND EXISTS \"\${CMAKE_SOURCE_DIR}/scripts/install_git_hooks.sh\")
+#     execute_process(COMMAND bash -c \"\${CMAKE_SOURCE_DIR}/scripts/install_git_hooks.sh\" )
+# endif()"
 
 SRC_CMAKE="##Following subdirectories are part of the project
 # add_subdirectory(blabla)
@@ -82,8 +104,3 @@ mkdir -p src
 cd src
 echo "$SRC_CMAKE" > CMakeLists.txt
 echo "" > main.cpp
-
-
-
-
-
