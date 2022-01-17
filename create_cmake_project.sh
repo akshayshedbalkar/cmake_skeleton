@@ -100,6 +100,8 @@ mkdir -p $PROJECT_NAME
 cd $PROJECT_NAME
 echo "$ROOT_CMAKE" > CMakeLists.txt
 
+mkdir -p build
+
 mkdir -p src
 cd src
 echo "$SRC_CMAKE" > CMakeLists.txt
