@@ -3,7 +3,8 @@
 if 
     [[ $# -ne 1 ]]; 
 then 
-    echo "Please provide exactly one argument. Usage: ./create_cmake_project.sh project_name"
+    echo "Please provide exactly one argument." 
+    echo "Usage: ./create_cmake_project.sh <project_name>"
     exit 1
 fi
 
