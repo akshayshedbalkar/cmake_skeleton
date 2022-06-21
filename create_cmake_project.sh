@@ -76,11 +76,7 @@ configure_file(\"\${PROJECT_SOURCE_DIR}/config/cmake/version.h.in\" \"\${PROJECT
 
 # FILE(READ \${CMAKE_SOURCE_DIR}/src/project.arxml version)
 # STRING(REGEX REPLACE \"VERSION_MAJOR\ [0-9]*\" \"VERSION_MAJOR\ \${${PROJECT_NAME}_VERSION_MAJOR}\" version \"\${version}\")
-# FILE(WRITE \${CMAKE_SOURCE_DIR}/src/project.arxml \"\${version}\")
-
-# if(EXISTS \"\${CMAKE_SOURCE_DIR}/.git\" AND EXISTS \"\${CMAKE_SOURCE_DIR}/scripts/install_git_hooks.sh\")
-#     execute_process(COMMAND bash -c \"\${CMAKE_SOURCE_DIR}/scripts/install_git_hooks.sh\" )
-# endif()"
+# FILE(WRITE \${CMAKE_SOURCE_DIR}/src/project.arxml \"\${version}\")"
 
 SRC_CMAKE="##Following subdirectories are part of the project
 # add_subdirectory(blabla)
