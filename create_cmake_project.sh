@@ -106,4 +106,4 @@ mkdir -p build
 mkdir -p src
 cd src
 echo "$SRC_CMAKE" > CMakeLists.txt
-echo "" > main.cpp
+echo "int main(){int i = 0;}" > main.cpp
