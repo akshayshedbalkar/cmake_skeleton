@@ -18,6 +18,7 @@ project($PROJECT_NAME VERSION 0.1.0)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
+# set(CMAKE_C_INCLUDE_WHAT_YOU_USE include-what-you-use)
 
 ##Define executables, libraries here with relative path
 # add_library($PROJECT_NAME STATIC src/main.cpp)
