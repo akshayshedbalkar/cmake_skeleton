@@ -134,7 +134,7 @@ INT_MAIN="#include \"version.h\"
 
 int main()
 {
-    printf("\n Version: %d.%d.%d\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+    printf(\"\n Version: %d.%d.%d\n\", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
     return 0;
 }"
 
