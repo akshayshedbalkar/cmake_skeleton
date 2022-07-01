@@ -62,6 +62,7 @@ set_target_properties($PROJECT_NAME
 ##Helpful commands for various functionalities if needed
 
 configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/pre-commit.in\" \"\${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit\")
+configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${PROJECT_SOURCE_DIR}/.git/hooks/prepare-commit-msg\")
 configure_file(\"\${PROJECT_SOURCE_DIR}/config/cmake/version.h.in\" \"\${PROJECT_SOURCE_DIR}/src/version.h\")
 
 # find_package(Boost COMPONENTS filesystem system iostreams)
@@ -116,12 +117,24 @@ VERSION_CONFIG="#ifndef VERSION_H
 GIT_FORMAT="#! /bin/bash
 
 which clang-format 1>/dev/null 2>/dev/null
-if [[ $? -eq 0 ]]; then
-    for FILE in \$(git diff --cached --name-only| git diff --cached --name-only|grep -E '**/*.(cpp|h|c)$')
+if [[ \$? -eq 0 ]]; then
+    for FILE in \$(git diff --cached --name-only --diff-filter=d| grep -E '**/*.(cpp|h|c)$')
     do
-        clang-format -i \$FILE
+        clang-format -i -style=file \$FILE
+        git add \$FILE
     done 
 fi"
+
+GIT_MSG="#!/bin/bash
+
+FILE=\$1
+MESSAGE=\$(cat \$FILE)
+TICKET=[\$(git rev-parse --abbrev-ref HEAD | grep -Eo '^(\w+\/)?(\w+[-_])?[0-9.]+' | grep -Eo '(\w+[-_])?[0-9.]+')]
+if [[ \$TICKET == \"[]\" || \"\$MESSAGE\" == \"\$TICKET\"* ]];then
+exit 0;
+fi
+
+echo \"\$TICKET \$MESSAGE\" > \$FILE"
 
 FORMAT_STYLE="{BasedOnStyle: chromium, BreakBeforeBraces: Allman, SortIncludes: false, CommentPragmas: '^ polyspace', ReflowComments: true, AlignTrailingComments: true}"
 
@@ -157,6 +170,7 @@ cd config
 mkdir git
 cd git
 echo "$GIT_FORMAT" > pre-commit.in
+echo "$GIT_MSG" >  prepare-commit-msg.in
 cd $R_PATH
 
 mkdir -p src
@@ -169,3 +183,4 @@ cd $R_PATH
 clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
 which git 1>/dev/null && git init 1>/dev/null
 chmod 700 config/git/pre-commit.in
+chmod 700 config/git/prepare-commit-msg.in
