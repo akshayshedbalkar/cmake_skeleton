@@ -14,7 +14,7 @@ PROJECT_NAME=$1
 ROOT_CMAKE="cmake_minimum_required(VERSION 3.13)
 
 ##Project name and type
-project($PROJECT_NAME VERSION 0.1.0)
+project($PROJECT_NAME VERSION 0.1.0.0)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
@@ -110,6 +110,7 @@ VERSION_CONFIG="#ifndef VERSION_H
 #define VERSION_MAJOR @PROJECT_VERSION_MAJOR@
 #define VERSION_MINOR @PROJECT_VERSION_MINOR@
 #define VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define VERSION_TWEAK @PROJECT_VERSION_TWEAK@
 
 #endif"
 
@@ -147,7 +148,7 @@ INT_MAIN="#include \"version.h\"
 
 int main()
 {
-    printf(\"\n Version: %d.%d.%d\n\", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+    printf(\"\n Version: %d.%d.%d.%d\n\", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_TWEAK);
     return 0;
 }"
 
