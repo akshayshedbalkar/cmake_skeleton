@@ -61,8 +61,8 @@ set_target_properties($PROJECT_NAME
 
 ##Helpful commands for various functionalities if needed
 
-configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/pre-commit.in\" \"\${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit\")
-configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${PROJECT_SOURCE_DIR}/.git/hooks/prepare-commit-msg\")
+configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/pre-commit.in\" \"\${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit\" COPYONLY)
+configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${PROJECT_SOURCE_DIR}/.git/hooks/prepare-commit-msg\" COPYONLY)
 configure_file(\"\${PROJECT_SOURCE_DIR}/config/cmake/version.h.in\" \"\${PROJECT_SOURCE_DIR}/src/version.h\")
 
 # find_package(Boost COMPONENTS filesystem system iostreams)
