@@ -11,6 +11,29 @@ fi
 PROJECT_NAME=$1
 
 #####################################################################################################################################
+echo "Checking dependencies..."
+ready=1
+programs=("cmake" "gcc" "git" "clang-format")
+for program in "${programs[@]}"
+do
+    which "$program" 1>/dev/null
+    if [[ $? -eq 0 ]]; then
+       echo "[x] $program" 
+    else
+        echo "[ ] $program"
+        ready=0
+    fi
+done
+
+if [[ ready -ne 1 ]]; then
+    echo "Please install required programs."
+    echo "Aborting!"
+    exit 0
+else
+    echo "All dependencies satisfied."
+fi
+
+#####################################################################################################################################
 ROOT_CMAKE="cmake_minimum_required(VERSION 3.13)
 
 ##Project name and type
@@ -153,6 +176,12 @@ int main()
 }"
 
 #####################################################################################################################################
+if [[ -d $PROJECT_NAME ]]; then
+    echo "Project directory already exists"
+    exit 0
+fi
+echo "Creating project..."
+
 mkdir -p $PROJECT_NAME
 cd $PROJECT_NAME
 R_PATH=$PWD
@@ -181,7 +210,11 @@ echo "$INT_MAIN" > main.cpp
 cd $R_PATH
 
 #####################################################################################################################################
+echo "Setting up git and clang-format..."
+
 clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
-which git 1>/dev/null && git init 1>/dev/null
+git init 1>/dev/null
 chmod 700 config/git/pre-commit.in
 chmod 700 config/git/prepare-commit-msg.in
+
+echo "Done!"
