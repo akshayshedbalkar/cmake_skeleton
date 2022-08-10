@@ -160,7 +160,7 @@ fi
 
 echo \"\$TICKET \$MESSAGE\" > \$FILE"
 
-FORMAT_STYLE="{BasedOnStyle: chromium, BreakBeforeBraces: Allman, SortIncludes: false, CommentPragmas: '^ polyspace', ReflowComments: true, AlignTrailingComments: true}"
+FORMAT_STYLE="{BasedOnStyle: chromium, BreakBeforeBraces: Allman, SortIncludes: false, CommentPragmas: '^ polyspace'}"
 
 IGNORE="/build
 /.cache"
