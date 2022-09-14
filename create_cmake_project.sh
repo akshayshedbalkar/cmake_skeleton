@@ -154,7 +154,7 @@ GIT_MSG="#!/bin/bash
 
 FILE=\$1
 MESSAGE=\$(cat \$FILE)
-TICKET=[\$(git rev-parse --abbrev-ref HEAD | grep -Eo '^(\w+\/)?(\w+[-_])?[0-9.]+' | grep -Eo '(\w+[-_])?[0-9.]+')]
+TICKET=[$(git rev-parse --abbrev-ref HEAD | grep -Eo '\/\w+[-_][0-9.]+' | grep -Eo '\w+[-_][0-9.]+' | tr '\n' ' '| head -c -1)]
 if [[ \$TICKET == \"[]\" || \"\$MESSAGE\" == \"\$TICKET\"* ]];then
 exit 0;
 fi
