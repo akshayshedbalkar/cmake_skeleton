@@ -214,7 +214,7 @@ cd $R_PATH
 echo "Setting up git and clang-format..."
 
 clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
-git init 1>/dev/null
+git init 1>/dev/null 2>/dev/null
 chmod 700 config/git/pre-commit.in
 chmod 700 config/git/prepare-commit-msg.in
 
