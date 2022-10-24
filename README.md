@@ -1,4 +1,5 @@
 This script initializes a cmake project suitable for C or C++.
+this is stupid
 
 Features:
 - modern cmake
