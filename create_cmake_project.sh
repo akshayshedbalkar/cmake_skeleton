@@ -17,7 +17,7 @@ ready=1
 programs=("cmake" "gcc" "git" "clang-format")
 for program in "${programs[@]}"
 do
-    which "$program" 1>/dev/null
+    which "$program" 1>/dev/null 2>/dev/null
     if [[ $? -eq 0 ]]; then
        echo "[x] $program" 
     else
