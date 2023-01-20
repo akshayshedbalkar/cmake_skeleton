@@ -16,7 +16,7 @@ This script initializes a cmake project suitable for C or C++.
 - git hook to automatically insert (JIRA) ticket numbers in commit messages is installed
 
 **Usage:**
-1) Essentially all you need to do is execute the script with a single argument, which is the project name `create_cmake_project.sh <project_name>`. The project is now generated. You can now build or edit the project as you like.
+1) Essentially all you need to do is execute the script with a single argument, which is the project name `./create_cmake_project.sh <project_name>`. The project is now generated. You can now build or edit the project as you like.
     
 2) To build, change to the build directory and build using cmake:
     ```
