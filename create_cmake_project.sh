@@ -144,7 +144,7 @@ GIT_FORMAT="#! /bin/bash
 
 which clang-format 1>/dev/null 2>/dev/null
 if [[ \$? -eq 0 ]]; then
-    for FILE in \$(git diff --cached --name-only --diff-filter=d| grep -E '**/*.(cpp|h|c)$')
+    for FILE in \$(git diff --cached --name-only --diff-filter=d| grep -E '.(cpp|h|c)$')
     do
         clang-format -i -style=file \$FILE
         git add \$FILE
@@ -155,7 +155,7 @@ GIT_MSG="#!/bin/bash
 
 FILE=\$1
 MESSAGE=\$(cat \$FILE)
-TICKET=[\$(git rev-parse --abbrev-ref HEAD | grep -Eo '\/\w+[-_][0-9.]+' | grep -Eo '\w+[-_][0-9.]+' | tr '\n' ' '| head -c -1)]
+TICKET=[\$(git rev-parse --abbrev-ref HEAD | grep -Eo '/\w+[-_][0-9.]+' | grep -Eo '\w+[-_][0-9.]+' | tr '\n' ' '| head -c -1)]
 if [[ \$TICKET == \"[]\" || \"\$MESSAGE\" == \"\$TICKET\"* ]];then
 exit 0;
 fi
