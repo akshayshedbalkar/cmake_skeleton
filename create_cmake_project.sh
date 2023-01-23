@@ -155,7 +155,7 @@ GIT_MSG="#!/bin/bash
 
 FILE=\$1
 MESSAGE=\$(cat \$FILE)
-TICKET=[\$(git rev-parse --abbrev-ref HEAD | grep -Eo '/\w+[-_][0-9.]+' | grep -Eo '\w+[-_][0-9.]+' | tr '\n' ' '| head -c -1)]
+TICKET=[\$(git branch --show-current | grep -Eo '/\w+[-_][0-9.]+' | grep -Eo '\w+[-_][0-9.]+' | tr '\n' ' '| head -c -1)]
 if [[ \$TICKET == \"[]\" || \"\$MESSAGE\" == \"\$TICKET\"* ]];then
 exit 0;
 fi
@@ -215,7 +215,7 @@ cd $R_PATH
 echo "Setting up git and clang-format..."
 
 clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
-git init 1>/dev/null 2>/dev/null
+git init --initial-branch=main 1>/dev/null 2>/dev/null
 chmod 700 config/git/pre-commit.in
 chmod 700 config/git/prepare-commit-msg.in
 
