@@ -12,7 +12,7 @@ fi
 PROJECT_NAME=$1
 
 #####################################################################################################################################
-echo " "
+echo ""
 echo "Checking dependencies..."
 ready=1
 programs=("cmake" "gcc" "git" "clang-format")
@@ -33,7 +33,7 @@ if [[ ready -ne 1 ]]; then
     exit 0
 else
     echo "All dependencies satisfied."
-    echo " "
+    echo ""
 fi
 
 #####################################################################################################################################
@@ -221,4 +221,20 @@ git init --initial-branch=main 1>/dev/null 2>/dev/null
 chmod 700 config/git/pre-commit.in
 chmod 700 config/git/prepare-commit-msg.in
 
+#####################################################################################################################################
+#Comment these lines out if you want to do this yourself
+echo ""
+echo "First time setup..."
+
+cd build
+CC=gcc CXX=g++ cmake ..
+make
+
+cd ..
+git add .
+git commit -m "Initial commit"
+
+#####################################################################################################################################
+
+echo ""
 echo "Done!"
