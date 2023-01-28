@@ -87,22 +87,41 @@ set_target_properties($PROJECT_NAME
 
 ##Helpful commands for various functionalities if needed
 
+#Install git hooks correctly even in git submodules
 execute_process(COMMAND git rev-parse --path-format=absolute --git-path hooks OUTPUT_VARIABLE hook_dir OUTPUT_STRIP_TRAILING_WHITESPACE)
 configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/pre-commit.in\" \"\${hook_dir}/pre-commit\" COPYONLY)
 configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${hook_dir}/prepare-commit-msg\" COPYONLY)
 configure_file(\"\${PROJECT_SOURCE_DIR}/config/cmake/version.h.in\" \"\${PROJECT_SOURCE_DIR}/src/version.h\")
 
+#Generate Doxygen documentation with 'make doc'
+find_package(Doxygen REQUIRED dot)
+if(DOXYGEN_FOUND)
+    set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/doc")
+    set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "README.md")
+    set(DOXYGEN_HAVE_DOT "YES")
+    set(DOXYGEN_CALL_GRAPH "YES")
+    set(DOXYGEN_CALLER_GRAPH "YES")
+    doxygen_add_docs(
+        doc
+        ${PROJECT_SOURCE_DIR}
+        )
+endif()
+
+# Ensure dependencies exist
 # find_package(Boost COMPONENTS filesystem system iostreams)
 
+# OS dependant compiler flags / tasks
 # if(\${CMAKE_SYSTEM_NAME} MATCHES \"Linux\")
 # elseif(\${CMAKE_SYSTEM_NAME} MATCHES \"Windows\")
 # endif()
 
+# Copy dynamic libraries to runtime directories
 # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 #     COMMAND \${CMAKE_COMMAND} -E copy_if_different
 #     \"\${PROJECT_SOURCE_DIR}/extern/lib/libcurl-x64.dll\"
 #     $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
+# Update version numbers throughout the project
 # FILE(READ \${CMAKE_SOURCE_DIR}/src/project.arxml version)
 # STRING(REGEX REPLACE \"VERSION_MAJOR\ [0-9]*\" \"VERSION_MAJOR\ \${${PROJECT_NAME}_VERSION_MAJOR}\" version \"\${version}\")
 # FILE(WRITE \${CMAKE_SOURCE_DIR}/src/project.arxml \"\${version}\")"
