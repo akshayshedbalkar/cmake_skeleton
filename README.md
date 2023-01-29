@@ -12,6 +12,7 @@ This script initializes a cmake project suitable for C or C++.
 - optional command template for copying build variables to arbitrary source file
 - folder is initialized as a git repository
 - clang format file is generated
+- Doxygen support
 - git hook to automatically format code is installed
 - git hook to automatically insert (JIRA) ticket numbers in commit messages is installed
 
