@@ -241,17 +241,17 @@ chmod 700 config/git/pre-commit.in
 chmod 700 config/git/prepare-commit-msg.in
 
 #####################################################################################################################################
-#Comment these lines out if you want to do this yourself
-echo ""
-echo "First time setup..."
+#Uncomment these lines out if you want to do do this automatically
+# echo ""
+# echo "First time setup..."
 
-cd build
-CC=gcc CXX=g++ cmake ..
-make
+# cd build
+# CC=gcc CXX=g++ cmake ..
+# make
 
-cd ..
-git add .
-git commit -m "Initial commit"
+# cd ..
+# git add .
+# git commit -m "Initial commit"
 
 #####################################################################################################################################
 
