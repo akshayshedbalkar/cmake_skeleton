@@ -94,7 +94,7 @@ configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${ho
 configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOURCE_DIR}/src/version.h\")
 
 #Generate Doxygen documentation with 'make doc'
-find_package(Doxygen REQUIRED dot)
+find_package(Doxygen COMPONENTS dot)
 if(DOXYGEN_FOUND)
     set(DOXYGEN_OUTPUT_DIRECTORY \"\${CMAKE_SOURCE_DIR}/doc\")
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE \"README.md\")
