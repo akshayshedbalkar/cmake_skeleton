@@ -35,7 +35,7 @@ else
 fi
 
 #####################################################################################################################################
-ROOT_CMAKE="cmake_minimum_required(VERSION 3.13)
+ROOT_CMAKE="cmake_minimum_required(VERSION 3.20)
 
 ##Project name and type
 project($PROJECT_NAME VERSION 0.1.0.0)
@@ -105,6 +105,11 @@ if(DOXYGEN_FOUND)
     )
 endif()
 
+
+#Include external code genertors
+configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\" \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\")
+add_subdirectory(extern)
+
 # Ensure dependencies exist
 # find_package(Boost COMPONENTS filesystem system iostreams)
 
@@ -143,6 +148,40 @@ target_sources($PROJECT_NAME
 #file(GLOB SOURCES \"*.cpp\")
 #target_sources($PROJECT_NAME PRIVATE \${SOURCES})"
 
+EXTERN_CMAKE="
+set(generated_sources 
+    \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated.h
+    \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated_1.cpp
+    \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated_2.cpp
+    )
+
+set(generated_directories
+    \${CMAKE_CURRENT_SOURCE_DIR}/gen)
+
+add_custom_command(
+    OUTPUT \${generated_sources}
+    COMMAND \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\"
+    DEPENDS \${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in
+    COMMENT \"Generating some files...\"
+    )
+
+add_custom_target(gen 
+    DEPENDS \${generated_sources}
+    )
+
+add_dependencies(test gen)
+
+target_sources(test
+    PRIVATE
+    \${generated_sources}
+    )
+
+target_include_directories(test
+    PRIVATE
+    \${generated_directories}
+    )
+"
+
 #####################################################################################################################################
 VERSION_CONFIG="#ifndef VERSION_H
 #define VERSION_H
@@ -157,6 +196,16 @@ VERSION_CONFIG="#ifndef VERSION_H
 #define VERSION_TWEAK @PROJECT_VERSION_TWEAK@
 
 #endif"
+
+CODE_GENERATOR=" #! /bin/bash
+
+mkdir -p \${CMAKE_SOURCE_DIR}/extern/gen
+echo \" const int get_trouble_code();
+const int get_higher_trouble_code();\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated.h
+echo \" #include \\\"generated.h\\\"
+const int get_trouble_code(){return 1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated_1.cpp
+echo \" #include \\\"generated.h\\\"
+const int get_higher_trouble_code(){return 1+1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated_2.cpp"
 
 #####################################################################################################################################
 GIT_FORMAT="#! /bin/bash
@@ -194,11 +243,16 @@ IGNORE="/build
 
 #####################################################################################################################################
 INT_MAIN="#include \"version.h\"
+#include \"generated.h\"
 #include <stdio.h>
 
 int main()
 {
     printf(\"\n Version: %d.%d.%d.%d\n\", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_TWEAK);
+
+    get_trouble_code();
+    get_higher_trouble_code();
+
     return 0;
 }"
 
@@ -222,6 +276,10 @@ cd config
 mkdir cmake
 cd cmake
 echo "$VERSION_CONFIG"> version.h.in
+echo "$CODE_GENERATOR">generate_files.sh.in
+cd $R_PATH
+mkdir -p extern
+echo "${EXTERN_CMAKE}">CMakeLists.txt
 cd $R_PATH
 cd config
 mkdir git
