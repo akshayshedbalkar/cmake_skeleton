@@ -148,7 +148,7 @@ target_sources($PROJECT_NAME
 #file(GLOB SOURCES \"*.cpp\")
 #target_sources($PROJECT_NAME PRIVATE \${SOURCES})"
 
-EXTERN_CMAKE="
+EXTERN_CMAKE="#Following adds generated code to main target
 set(generated_sources 
     \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated.h
     \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated_1.cpp
@@ -161,22 +161,22 @@ set(generated_directories
 add_custom_command(
     OUTPUT \${generated_sources}
     COMMAND \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\"
-    DEPENDS \${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in
-    COMMENT \"Generating some files...\"
+    DEPENDS \"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\"
+    COMMENT \"Generating Gen files ...\"
     )
 
 add_custom_target(gen 
     DEPENDS \${generated_sources}
     )
 
-add_dependencies(test gen)
+add_dependencies($PROJECT_NAME gen)
 
-target_sources(test
+target_sources($PROJECT_NAME
     PRIVATE
     \${generated_sources}
     )
 
-target_include_directories(test
+target_include_directories($PROJECT_NAME
     PRIVATE
     \${generated_directories}
     )
@@ -200,11 +200,11 @@ VERSION_CONFIG="#ifndef VERSION_H
 CODE_GENERATOR=" #! /bin/bash
 
 mkdir -p \${CMAKE_SOURCE_DIR}/extern/gen
-echo \" const int get_trouble_code();
+echo \"const int get_trouble_code();
 const int get_higher_trouble_code();\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated.h
-echo \" #include \\\"generated.h\\\"
+echo \"#include \\\"generated.h\\\"
 const int get_trouble_code(){return 1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated_1.cpp
-echo \" #include \\\"generated.h\\\"
+echo \"#include \\\"generated.h\\\"
 const int get_higher_trouble_code(){return 1+1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated_2.cpp"
 
 #####################################################################################################################################
@@ -277,8 +277,10 @@ mkdir cmake
 cd cmake
 echo "$VERSION_CONFIG"> version.h.in
 echo "$CODE_GENERATOR">generate_files.sh.in
+chmod 700 generate_files.sh.in
 cd $R_PATH
 mkdir -p extern
+cd extern
 echo "${EXTERN_CMAKE}">CMakeLists.txt
 cd $R_PATH
 cd config
