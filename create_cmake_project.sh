@@ -3,8 +3,7 @@
 
 #####################################################################################################################################
 if 
-    [[ $# -ne 1 ]]; 
-then 
+    [[ $# -ne 1 ]]; then 
     echo "Please provide exactly one argument." 
     echo "Usage: ./create_cmake_project.sh <project_name>"
     exit 1
@@ -18,8 +17,8 @@ ready=1
 programs=("cmake" "gcc" "git" "clang-format")
 for program in "${programs[@]}"
 do
-    if command -v "$program" 1>/dev/null 2>/dev/null; then
-       echo "[x] $program" 
+    if command -v "$program" &>/dev/null; then
+        echo "[x] $program" 
     else
         echo "[ ] $program"
         ready=0
@@ -103,7 +102,7 @@ if(DOXYGEN_FOUND)
     doxygen_add_docs(
         doc
         \${CMAKE_SOURCE_DIR}
-        )
+    )
 endif()
 
 # Ensure dependencies exist
@@ -162,7 +161,7 @@ VERSION_CONFIG="#ifndef VERSION_H
 #####################################################################################################################################
 GIT_FORMAT="#! /bin/bash
 
-which clang-format 1>/dev/null 2>/dev/null
+which clang-format &>/dev/null
 if [[ \$? -eq 0 ]]; then
     for FILE in \$(git diff --cached --name-only --diff-filter=d| grep -E '.(cpp|h|c)$')
     do
@@ -176,13 +175,19 @@ GIT_MSG="#!/bin/bash
 FILE=\$1
 MESSAGE=\$(cat \$FILE)
 TICKET=[\$(git branch --show-current | grep -Eo '/\w+[-_][0-9.]+' | grep -Eo '\w+[-_][0-9.]+' | tr '\n' ' '| head -c -1)]
-if [[ \$TICKET == \"[]\" || \"\$MESSAGE\" == \"\$TICKET\"* ]];then
-exit 0;
+if [[ \$TICKET == \"[]\" || \"\$MESSAGE\" == \"\$TICKET\"* ]]; then
+    exit 0;
 fi
 
 echo \"\$TICKET \$MESSAGE\" > \$FILE"
 
-FORMAT_STYLE="{BasedOnStyle: mozilla, BreakBeforeBraces: Allman, QualifierAlignment: Right, PointerAlignment: Right, SortIncludes: false}"
+clang_ver=$(clang-format --version|cut -d" " -f3|cut -d"." -f1)
+if (( $clang_ver >= 14 )); then
+    FORMAT_STYLE="{BasedOnStyle: mozilla, BreakBeforeBraces: Allman, QualifierAlignment: Right, PointerAlignment: Right, SortIncludes: false}"
+else
+    FORMAT_STYLE="{BasedOnStyle: mozilla, BreakBeforeBraces: Allman,  PointerAlignment: Right, SortIncludes: false}"
+fi
+
 
 IGNORE="/build
 /.cache"
@@ -235,7 +240,7 @@ cd $R_PATH
 echo "Setting up git and clang-format..."
 
 clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
-git init --initial-branch=main 1>/dev/null 2>/dev/null
+git init --initial-branch=main &>/dev/null
 chmod 700 config/git/pre-commit.in
 chmod 700 config/git/prepare-commit-msg.in
 
