@@ -115,7 +115,6 @@ set_target_properties($PROJECT_NAME
 execute_process(COMMAND git rev-parse --path-format=absolute --git-path hooks OUTPUT_VARIABLE hook_dir OUTPUT_STRIP_TRAILING_WHITESPACE)
 configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/pre-commit.in\" \"\${hook_dir}/pre-commit\" COPYONLY FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${hook_dir}/prepare-commit-msg\" COPYONLY FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOURCE_DIR}/src/version.h\")
 
 #Generate Doxygen documentation with 'make doc'
 find_package(Doxygen COMPONENTS dot)
@@ -150,6 +149,7 @@ add_subdirectory(extern)
 #    )
 
 # Update version numbers throughout the project
+configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOURCE_DIR}/src/version.h\")
 # FILE(READ \${CMAKE_SOURCE_DIR}/src/project.arxml version)
 # STRING(REGEX REPLACE \"VERSION_MAJOR\ [0-9]*\" \"VERSION_MAJOR\ \${${PROJECT_NAME}_VERSION_MAJOR}\" version \"\${version}\")
 # FILE(WRITE \${CMAKE_SOURCE_DIR}/src/project.arxml \"\${version}\")"
