@@ -174,38 +174,61 @@ target_sources($PROJECT_NAME
 #file(GLOB SOURCES \"*.cpp\")
 #target_sources($PROJECT_NAME PRIVATE \${SOURCES})"
 
-EXTERN_CMAKE="#Following adds generated code to main target
+EXTERN_CMAKE="#This CMakeLists.txt file provides ways to add generated code to project.
+
+##All generated sources must be listed here
 set(generated_sources 
     \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated.h
     \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated_1.cpp
     \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated_2.cpp
     )
 
+##List generated directories here
 set(generated_directories
     \${CMAKE_CURRENT_SOURCE_DIR}/gen)
 
+##Invoke code generator here. OUTPUT artifacts are cleaned on \"make clean\". 
 add_custom_command(
-    OUTPUT \${generated_sources}
+    OUTPUT \${generated_sources} \${generated_directories}
     COMMAND \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\"
     DEPENDS \"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\"
     COMMENT \"Generating Gen files ...\"
     )
 
-add_custom_target(gen 
-    DEPENDS \${generated_sources}
-    )
+##Prefered option: create a library out of generated artifacts and link to main target.
+#OBJECT libraries are just unzipped object (.o) files
+add_library(gen OBJECT \${generated_sources})
 
-add_dependencies($PROJECT_NAME gen)
-
-target_sources($PROJECT_NAME
-    PRIVATE
-    \${generated_sources}
-    )
-
-target_include_directories($PROJECT_NAME
-    PRIVATE
+#Set scope to PUBLIC to also include directories for main target
+target_include_directories(gen
+    PUBLIC
     \${generated_directories}
     )
+
+#Link to main target
+target_link_libraries(test gen)
+
+##ALternative option: create a custom target that only controls generation.
+##Generated artifacts are direct sources of main target. 
+#Create a custom target to wrap generation.
+#add_custom_target(gen 
+#    DEPENDS \${generated_sources}
+#    )
+
+#Make sure to generate code before main target is created
+#add_dependencies($PROJECT_NAME gen)
+
+#Add sources to main target like ususal sources
+#target_sources($PROJECT_NAME
+#    PRIVATE
+#    \${generated_sources}
+#    )
+
+#Specify include directories for main target like usual
+#target_include_directories($PROJECT_NAME
+#    PRIVATE
+#    \${generated_directories}
+#    )
 "
 
 #####################################################################################################################################
