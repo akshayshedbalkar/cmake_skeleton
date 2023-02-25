@@ -329,15 +329,17 @@ echo "$VERSION_CONFIG"> version.h.in
 echo "$CODE_GENERATOR">generate_files.sh.in
 chmod 700 generate_files.sh.in
 cd $R_PATH
-mkdir -p extern
-cd extern
-echo "${EXTERN_CMAKE}">CMakeLists.txt
-cd $R_PATH
+
 cd config
 mkdir git
 cd git
 echo "$GIT_FORMAT" > pre-commit.in
 echo "$GIT_MSG" >  prepare-commit-msg.in
+cd $R_PATH
+
+mkdir -p extern
+cd extern
+echo "${EXTERN_CMAKE}">CMakeLists.txt
 cd $R_PATH
 
 mkdir -p src
