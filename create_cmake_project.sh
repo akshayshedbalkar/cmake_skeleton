@@ -27,7 +27,7 @@ echo "Checking dependencies..."
 
 ready=0
 programs=("cmake" "gcc" "git" "clang-format")
-versions=("3.27" "0" "0" "14")
+versions=("3.20" "0" "0" "14")
 
 for p in {0..3}
 do
