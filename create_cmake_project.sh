@@ -78,28 +78,28 @@ add_executable($PROJECT_NAME src/main.cpp)
 add_subdirectory(src)
 
 ##Compiler defines, options and features
-# target_compile_features($PROJECT_NAME
-#     PRIVATE
-#         cxx_std_20
-# )
-# target_compile_options($PROJECT_NAME
-#     PRIVATE
-#         -Wall
-# )
-# target_compile_definitions($PROJECT_NAME
-#      PRIVATE
-#          foo
-#  )
+# target_compile_features($PROJECT_NAME 
+#   PRIVATE 
+#       cxx_std_20
+#   )
+# target_compile_options($PROJECT_NAME 
+#   PRIVATE 
+#       -Wall
+#   )
+# target_compile_definitions($PROJECT_NAME 
+#   PRIVATE 
+#       foo
+#   )
 
 ##Linker options, external libraries/objects to link against
-# target_link_libraries($PROJECT_NAME
-#      PRIVATE
-#          blabla
-#  )
-# target_link_options($PROJECT_NAME
-#      PRIVATE
-#          blabla
-#  )
+# target_link_libraries($PROJECT_NAME 
+#   PRIVATE 
+#       blabla
+#   )
+# target_link_options($PROJECT_NAME 
+#   PRIVATE 
+#       blabla
+#   )
 
 ##Set target properties
 set_target_properties($PROJECT_NAME
@@ -107,14 +107,14 @@ set_target_properties($PROJECT_NAME
         RUNTIME_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/bin\"
         ARCHIVE_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/lib\"
         LIBRARY_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/lib\"
-)
+    )
 
 ##Helpful commands for various functionalities if needed
 
 #Install git hooks correctly even in git submodules
 execute_process(COMMAND git rev-parse --path-format=absolute --git-path hooks OUTPUT_VARIABLE hook_dir OUTPUT_STRIP_TRAILING_WHITESPACE)
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/pre-commit.in\" \"\${hook_dir}/pre-commit\" COPYONLY)
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${hook_dir}/prepare-commit-msg\" COPYONLY)
+configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/pre-commit.in\" \"\${hook_dir}/pre-commit\" FILE_PERMISSIONS 700 COPYONLY)
+configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${hook_dir}/prepare-commit-msg\" FILE_PERMISSIONS 700 COPYONLY)
 configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOURCE_DIR}/src/version.h\")
 
 #Generate Doxygen documentation with 'make doc'
@@ -125,10 +125,7 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_HAVE_DOT \"YES\")
     set(DOXYGEN_CALL_GRAPH \"YES\")
     set(DOXYGEN_CALLER_GRAPH \"YES\")
-    doxygen_add_docs(
-        doc
-        \${CMAKE_SOURCE_DIR}
-    )
+    doxygen_add_docs(doc \${CMAKE_SOURCE_DIR})
 endif()
 
 
@@ -145,10 +142,12 @@ add_subdirectory(extern)
 # endif()
 
 # Copy dynamic libraries to runtime directories
-# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND \${CMAKE_COMMAND} -E copy_if_different
-#     \"\${CMAKE_SOURCE_DIR}/extern/lib/libcurl-x64.dll\"
-#     $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+# add_custom_command(TARGET ${PROJECT_NAME} 
+#    POST_BUILD
+#    COMMAND \${CMAKE_COMMAND} -E copy_if_different 
+#        \"\${CMAKE_SOURCE_DIR}/extern/lib/libcurl-x64.dll\"
+#        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+#    )
 
 # Update version numbers throughout the project
 # FILE(READ \${CMAKE_SOURCE_DIR}/src/project.arxml version)
@@ -160,30 +159,37 @@ SRC_CMAKE="##Following subdirectories are part of the project
 
 ##All .h files in this directory are to be included
 target_include_directories($PROJECT_NAME
-    PRIVATE
+    PRIVATE 
         \${CMAKE_CURRENT_SOURCE_DIR}
-)
+    )
 
-##List here the source files in current directory (Proper way to include sources)
+##List here the source files in current directory (Correct way to include sources)
 target_sources($PROJECT_NAME
-    PRIVATE
+    PRIVATE 
         main.cpp
-)
+    )
 
 ##All .cpp files in this directory are source files (Quick and dirty way to include sources)
-#file(GLOB SOURCES \"*.cpp\")
-#target_sources($PROJECT_NAME PRIVATE \${SOURCES})"
+#file(GLOB 
+#   SOURCES 
+#       \"*.cpp\"
+#   )
+#
+#target_sources($PROJECT_NAME 
+#   PRIVATE 
+#       \${SOURCES}
+#   )"
 
 EXTERN_CMAKE="#This CMakeLists.txt file provides ways to add generated code to project.
 
 ##All generated sources must be listed here
 set(generated_sources 
-    \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated.h
     \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated_1.cpp
     \${CMAKE_CURRENT_SOURCE_DIR}/gen/generated_2.cpp
     )
 
-##List generated directories here
+##List generated directories here.
+##These should at least be directories containing generated header files.
 set(generated_directories
     \${CMAKE_CURRENT_SOURCE_DIR}/gen)
 
@@ -193,6 +199,7 @@ add_custom_command(
     COMMAND \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\"
     DEPENDS \"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\"
     COMMENT \"Generating Gen files ...\"
+    VERBATIM
     )
 
 ##Prefered option: create a library out of generated artifacts and link to main target.
@@ -202,7 +209,7 @@ add_library(gen OBJECT \${generated_sources})
 #Set scope to PUBLIC to also include directories for main target
 target_include_directories(gen
     PUBLIC
-    \${generated_directories}
+        \${generated_directories}
     )
 
 #Link to main target
@@ -210,7 +217,6 @@ target_link_libraries(test gen)
 
 ##ALternative option: create a custom target that only controls generation.
 ##Generated artifacts are direct sources of main target. 
-#Create a custom target to wrap generation.
 #add_custom_target(gen 
 #    DEPENDS \${generated_sources}
 #    )
@@ -221,13 +227,13 @@ target_link_libraries(test gen)
 #Add sources to main target like ususal sources
 #target_sources($PROJECT_NAME
 #    PRIVATE
-#    \${generated_sources}
+#       \${generated_sources}
 #    )
 
 #Specify include directories for main target like usual
 #target_include_directories($PROJECT_NAME
 #    PRIVATE
-#    \${generated_directories}
+#       \${generated_directories}
 #    )
 "
 
@@ -345,8 +351,6 @@ echo "Setting up git and clang-format..."
 
 clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
 git init --initial-branch=main &>/dev/null
-chmod 700 config/git/pre-commit.in
-chmod 700 config/git/prepare-commit-msg.in
 
 #####################################################################################################################################
 #Uncomment these lines out if you want to do do this automatically
