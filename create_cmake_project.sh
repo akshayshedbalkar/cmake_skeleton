@@ -11,21 +11,47 @@ fi
 PROJECT_NAME=$1
 
 #####################################################################################################################################
+extract_version()
+{
+    local precision=${2:-0} 
+    precision=$(($precision + 1))
+
+    local ver=$($1 --version |head -n 1| cut -d" " -f3)
+    ver=$(echo $ver|cut -d"." -f-$precision)
+
+    echo $ver
+}
+
 echo ""
 echo "Checking dependencies..."
-ready=1
+
+ready=0
 programs=("cmake" "gcc" "git" "clang-format")
-for program in "${programs[@]}"
+versions=("3.27" "0" "0" "14")
+
+for p in {0..3}
 do
+    program=${programs[p]}
+    required=${versions[p]}
+    ver=$(extract_version $program 1)
+
     if command -v "$program" &>/dev/null; then
-        echo "[x] $program" 
+        if awk "BEGIN {exit !( $ver >= $required )}"; then
+            echo "[x] $program" 
+        else
+            echo "[-] $program version $ver too low (Required: $required)"
+            ready=1
+        fi
     else
         echo "[ ] $program"
-        ready=0
+        ready=2
     fi
 done
 
-if [[ ready -ne 1 ]]; then
+if [[ ready -eq 1 ]]; then
+    echo "Some programs are outdated. Everything may not work correctly. Continuing setup anyway..."
+    echo ""
+elif [[ ready -eq 2 ]]; then
     echo "Please install required programs."
     echo "Aborting!"
     exit 0
@@ -230,12 +256,7 @@ fi
 
 echo \"\$TICKET \$MESSAGE\" > \$FILE"
 
-clang_ver=$(clang-format --version|cut -d" " -f3|cut -d"." -f1)
-if (( $clang_ver >= 14 )); then
-    FORMAT_STYLE="{BasedOnStyle: mozilla, BreakBeforeBraces: Allman, QualifierAlignment: Right, PointerAlignment: Right, SortIncludes: false}"
-else
-    FORMAT_STYLE="{BasedOnStyle: mozilla, BreakBeforeBraces: Allman,  PointerAlignment: Right, SortIncludes: false}"
-fi
+FORMAT_STYLE="{BasedOnStyle: mozilla, BreakBeforeBraces: Allman, QualifierAlignment: Right, PointerAlignment: Right, SortIncludes: false}"
 
 
 IGNORE="/build
