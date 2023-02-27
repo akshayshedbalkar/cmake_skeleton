@@ -49,7 +49,7 @@ do
 done
 
 if [[ ready -eq 1 ]]; then
-    echo "Warning: Installed versions for some programs are too low. Everything may not work correctly. Continuing setup anyway..."
+    echo "Warning: Installed versions for some programs are too low. Some components may not work correctly. Continuing setup anyway..."
     echo ""
 elif [[ ready -eq 2 ]]; then
     echo "Error: Required programs not installed. Please install them and try again. "
@@ -353,7 +353,7 @@ echo "Setting up git and clang-format..."
 echo ""
 
 git init --initial-branch=main &>/dev/null
-clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
+clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format 2>/dev/null
 
 #####################################################################################################################################
 #Uncomment these lines out if you want to do do this automatically
@@ -370,8 +370,4 @@ clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
 
 #####################################################################################################################################
 
-if [[ $? -eq 0 ]]; then
-    echo "Done!"
-else
-    echo "Script ended with some errors."
-fi
+echo "Done!"
