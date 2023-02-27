@@ -16,7 +16,7 @@ extract_version()
     local precision=${2:-0} 
     precision=$(($precision + 1))
 
-    local ver=$($1 --version |head -n 1| awk -F" " '{print $NF}')
+    local ver=$($1 --version 2> /dev/null | head -n 1| awk -F" " '{print $NF}')
     ver=$(echo $ver|cut -d"." -f-$precision)
 
     echo $ver
