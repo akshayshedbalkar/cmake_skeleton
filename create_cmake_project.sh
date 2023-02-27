@@ -49,13 +49,16 @@ do
 done
 
 if [[ ready -eq 1 ]]; then
+    echo ""
     echo "Warning: Installed versions for some programs are too low. Some components may not work correctly. Continuing setup anyway..."
     echo ""
 elif [[ ready -eq 2 ]]; then
+    echo ""
     echo "Error: Required programs not installed. Please install them and try again. "
     echo "Aborting!"
     exit 0
 else
+    echo ""
     echo "All dependencies satisfied."
     echo ""
 fi
