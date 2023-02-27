@@ -16,7 +16,7 @@ extract_version()
     local precision=${2:-0} 
     precision=$(($precision + 1))
 
-    local ver=$($1 --version 2> /dev/null | head -n 1| awk -F" " '{print $NF}')
+    local ver=$($1 --version 2> /dev/null | head -n 1| grep -Po "\d+\.\d+\.\d+")
     ver=$(echo $ver|cut -d"." -f-$precision)
 
     echo $ver
@@ -37,13 +37,13 @@ do
 
     if command -v "$program" &>/dev/null; then
         if awk "BEGIN {exit !( $ver >= $required )}"; then
-            echo "[x] $program" 
+            printf "%-20s %-20s %s\n" "[x] $program" "(Required >= $required;" "Installed = $ver)" 
         else
-            echo "[-] $program version $ver too low (Required: $required)"
+            printf "%-20s %-20s %s\n" "[-] $program" "(Required >= $required;" "Installed = $ver)"
             ready=1
         fi
     else
-        echo "[ ] $program"
+        printf "%-20s %s\n" "[ ] $program" "(Required >= $required)"
         ready=2
     fi
 done
