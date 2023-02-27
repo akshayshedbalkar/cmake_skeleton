@@ -350,9 +350,10 @@ cd $R_PATH
 
 #####################################################################################################################################
 echo "Setting up git and clang-format..."
+echo ""
 
-clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
 git init --initial-branch=main &>/dev/null
+clang-format -style="${FORMAT_STYLE}" -dump-config > .clang-format
 
 #####################################################################################################################################
 #Uncomment these lines out if you want to do do this automatically
@@ -369,5 +370,8 @@ git init --initial-branch=main &>/dev/null
 
 #####################################################################################################################################
 
-echo ""
-echo "Done!"
+if [[ $? -eq 0 ]]; then
+    echo "Done!"
+else
+    echo "Script ended with some errors."
+fi
