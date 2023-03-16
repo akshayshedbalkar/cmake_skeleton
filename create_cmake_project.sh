@@ -122,11 +122,12 @@ configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${ho
 #Generate Doxygen documentation with 'make doc'
 find_package(Doxygen COMPONENTS dot)
 if(DOXYGEN_FOUND)
-    set(DOXYGEN_OUTPUT_DIRECTORY \"\${CMAKE_SOURCE_DIR}/doc\")
+    set(DOXYGEN_HTML_OUTPUT \"${CMAKE_SOURCE_DIR}/docs\")
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE \"README.md\")
     set(DOXYGEN_HAVE_DOT \"YES\")
     set(DOXYGEN_CALL_GRAPH \"YES\")
     set(DOXYGEN_CALLER_GRAPH \"YES\")
+    set(DOXYGEN_ALWAYS_DETAILED_SEC \"YES\")
     doxygen_add_docs(doc \${CMAKE_SOURCE_DIR})
 endif()
 
