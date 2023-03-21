@@ -162,7 +162,7 @@ configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOU
 #Call: make sca
 add_custom_target(sca
     COMMAND mkdir -p \${CMAKE_BINARY_DIR}/sca
-    COMMAND cppcheck --project=compile_commands.json -i\${CMAKE_SOURCE_DIR}/extern/modcom --enable=all --premium=cert-c-2016 --addon=misra --force --inconclusive --xml --output-file=\${CMAKE_BINARY_DIR}/sca/results.xml --cppcheck-build-dir=\${CMAKE_BINARY_DIR}/sca --onfig-exclude=\"\${CMAKE_SOURCE_DIR}/extern/rte\" 
+    COMMAND cppcheck --project=compile_commands.json -i\${CMAKE_SOURCE_DIR}/extern/modcom --enable=all --premium='cert-c-2016 --misra-c-2016 --bughunting' --force --inconclusive --xml --output-file=\${CMAKE_BINARY_DIR}/sca/results.xml --cppcheck-build-dir=\${CMAKE_BINARY_DIR}/sca --onfig-exclude=\"\${CMAKE_SOURCE_DIR}/extern/rte\" 
     COMMAND python \${CMAKE_SOURCE_DIR}/scripts/platform/cppcheck-htmlreport.py --file=\${CMAKE_BINARY_DIR}/sca/results.xml --report-dir=\${CMAKE_BINARY_DIR}/sca/html_report --source-dir=\${CMAKE_BINARY_DIR}/sca
     COMMAND find \${CMAKE_SOURCE_DIR} -type f -name \"*snalyzerinfo\" -not -path '\${CMAKE_BINARY_DIR}*' | xargs -r mv -f -t \${CMAKE_BINARY_DIR}/sca/
     COMMENT \"Performing static code analysis\"
