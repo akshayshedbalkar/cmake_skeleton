@@ -257,6 +257,21 @@ const int get_trouble_code(){return 1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/gene
 echo \"#include \\\"generated.h\\\"
 const int get_higher_trouble_code(){return 1+1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated_2.cpp"
 
+TESTING_MACROS="#! /bin/bash
+
+#Usage: 
+#First argument: file extension (c, cpp etc)
+#Second argument: folders to include in search (\"folder1 folder2 ...\")
+
+FILES=\$(find \$2 -type f -name \"*.\$1\")
+
+for f in \$FILES; do
+    ff=\${f##*/} 
+    ff=\${ff%.\$1}
+    sed -i \"1i#if !defined(REMOVE_ALL) || defined(KEEP_\$ff)\n\" \$f
+    printf \"\n#endif\" >> \$f
+done"
+
 #####################################################################################################################################
 GIT_FORMAT="#! /bin/bash
 
@@ -349,6 +364,12 @@ mkdir git
 cd git
 echo "$GIT_FORMAT" > pre-commit.in
 echo "$GIT_MSG" >  prepare-commit-msg.in
+cd $R_PATH
+
+mkdir -p scripts
+cd scripts
+echo "$TESTING_MACROS" > insert_macros_for_testing.sh
+chmod 700 insert_macros_for_testing.sh
 cd $R_PATH
 
 mkdir -p extern
