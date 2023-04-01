@@ -74,35 +74,25 @@ set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
 # set(CMAKE_C_INCLUDE_WHAT_YOU_USE include-what-you-use)
 
 ##Define executables, libraries here with relative path
-# add_library($PROJECT_NAME STATIC src/main.cpp)
+add_library(${PROJECT_NAME}_interface INTERFACE)
+add_library(${PROJECT_NAME}_library STATIC)
 add_executable($PROJECT_NAME src/main.cpp)
 
 ##Subdirectories which are part of the project
 add_subdirectory(src)
 
+#Include external code genertors
+configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\" \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\")
+add_subdirectory(extern)
+
 ##Compiler defines, options and features
-# target_compile_features($PROJECT_NAME 
-#   PRIVATE 
-#       cxx_std_20
-#   )
-# target_compile_options($PROJECT_NAME 
-#   PRIVATE 
-#       -Wall
-#   )
-# target_compile_definitions($PROJECT_NAME 
-#   PRIVATE 
-#       foo
-#   )
+#target_compile_features($PROJECT_NAME PRIVATE cxx_std_20)
+#target_compile_options($PROJECT_NAME PRIVATE -Wall)
+#target_compile_definitions($PROJECT_NAME PRIVATE foo)
 
 ##Linker options, external libraries/objects to link against
-# target_link_libraries($PROJECT_NAME 
-#   PRIVATE 
-#       blabla
-#   )
-# target_link_options($PROJECT_NAME 
-#   PRIVATE 
-#       blabla
-#   )
+target_link_libraries(${PROJECT_NAME}_library PRIVATE ${PROJECT_NAME}_interface)
+target_link_libraries($PROJECT_NAME PRIVATE ${PROJECT_NAME}_interface ${PROJECT_NAME}_library)
 
 ##Set target properties
 set_target_properties($PROJECT_NAME
@@ -130,11 +120,6 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_ALWAYS_DETAILED_SEC \"YES\")
     doxygen_add_docs(doc \${CMAKE_SOURCE_DIR})
 endif()
-
-
-#Include external code genertors
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\" \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\")
-add_subdirectory(extern)
 
 # Ensure dependencies exist
 # find_package(Boost COMPONENTS filesystem system iostreams)
@@ -169,32 +154,41 @@ add_custom_target(sca
     )"
 
 SRC_CMAKE="##Following subdirectories are part of the project
-# add_subdirectory(blabla)
+add_subdirectory(stuff)
 
 ##All .h files in this directory are to be included
-target_include_directories($PROJECT_NAME
-    PRIVATE 
-        \${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(${PROJECT_NAME}_interface 
+    INTERFACE \${CMAKE_CURRENT_SOURCE_DIR}
     )
 
 ##List here the source files in current directory (Correct way to include sources)
-target_sources($PROJECT_NAME
-    PRIVATE 
-        main.cpp
+# target_sources($PROJECT_NAME 
+#   PRIVATE main.cpp
+#   )
+
+##All .cpp files in this directory are source files (Quick and dirty way to include sources)
+#file(GLOB SOURCES \"*.cpp\")
+#target_sources($PROJECT_NAME PRIVATE \${SOURCES})"
+
+
+STUFF_CMAKE="##Following subdirectories are part of the project
+#add_subdirectory(blabla)
+
+##All .h files in this directory are to be included
+target_include_directories(${PROJECT_NAME}_interface 
+    INTERFACE \${CMAKE_CURRENT_SOURCE_DIR}
+    )
+
+##List here the source files in current directory (Correct way to include sources)
+target_sources(${PROJECT_NAME}_library
+    PRIVATE stuff.cpp
     )
 
 ##All .cpp files in this directory are source files (Quick and dirty way to include sources)
-#file(GLOB 
-#   SOURCES 
-#       \"*.cpp\"
-#   )
-#
-#target_sources($PROJECT_NAME 
-#   PRIVATE 
-#       \${SOURCES}
-#   )"
+#file(GLOB SOURCES \"*.cpp\")
+#target_sources($PROJECT_NAME PRIVATE \${SOURCES})"
 
-EXTERN_CMAKE="#This CMakeLists.txt file provides ways to add generated code to project.
+EXTERN_CMAKE="#This CMakeLists.txt file provides a robust way to add generated code to project.
 
 ##All generated sources must be listed here
 set(generated_sources 
@@ -216,39 +210,23 @@ add_custom_command(
     VERBATIM
     )
 
-##Prefered option: create a library out of generated artifacts and link to main target.
-#OBJECT libraries are just unzipped object (.o) files
-add_library(gen OBJECT \${generated_sources})
-
-#Set scope to PUBLIC to also include directories for main target
-target_include_directories(gen
-    PUBLIC
-        \${generated_directories}
+##Generated artifacts are sources of intermediate target. 
+add_custom_target(gen 
+    DEPENDS \${generated_sources}
     )
 
-#Link to main target
-target_link_libraries(test gen)
-
-##ALternative option: create a custom target that only controls generation.
-##Generated artifacts are direct sources of main target. 
-#add_custom_target(gen 
-#    DEPENDS \${generated_sources}
-#    )
-
 #Make sure to generate code before main target is created
-#add_dependencies($PROJECT_NAME gen)
+add_dependencies(${PROJECT_NAME}_library gen)
 
 #Add sources to main target like ususal sources
-#target_sources($PROJECT_NAME
-#    PRIVATE
-#       \${generated_sources}
-#    )
+target_sources(${PROJECT_NAME}_library
+    PRIVATE \${generated_sources}
+    )
 
 #Specify include directories for main target like usual
-#target_include_directories($PROJECT_NAME
-#    PRIVATE
-#       \${generated_directories}
-#    )
+target_include_directories(${PROJECT_NAME}_interface
+    INTERFACE \${generated_directories}
+    )
 "
 
 #####################################################################################################################################
@@ -269,8 +247,11 @@ VERSION_CONFIG="#ifndef VERSION_H
 CODE_GENERATOR=" #! /bin/bash
 
 mkdir -p \${CMAKE_SOURCE_DIR}/extern/gen
-echo \"const int get_trouble_code();
-const int get_higher_trouble_code();\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated.h
+echo \"#ifndef GEN_H 
+#define GEN_H
+const int get_trouble_code();
+const int get_higher_trouble_code();
+#endif\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated.h
 echo \"#include \\\"generated.h\\\"
 const int get_trouble_code(){return 1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated_1.cpp
 echo \"#include \\\"generated.h\\\"
@@ -281,7 +262,7 @@ GIT_FORMAT="#! /bin/bash
 
 which clang-format &>/dev/null
 if [[ \$? -eq 0 ]]; then
-    for FILE in \$(git diff --cached --name-only --diff-filter=d| grep -E '.(cpp|h|c)$')
+    for FILE in \$(git diff --cached --name-only --diff-filter=d| grep -E '\.(cpp|h|c)$')
     do
         clang-format -i -style=file \$FILE
         git add \$FILE
@@ -308,17 +289,36 @@ IGNORE="/build
 #####################################################################################################################################
 INT_MAIN="#include \"version.h\"
 #include \"generated.h\"
+#include \"stuff.h\"
 #include <stdio.h>
 
 int main()
+{
+    stuff();
+
+    return 0;
+}"
+
+STUFF_CPP="#include \"version.h\"
+#include \"generated.h\"
+#include \"stuff.h\"
+#include <stdio.h>
+
+void stuff()
 {
     printf(\"\n Version: %d.%d.%d.%d\n\", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_TWEAK);
 
     get_trouble_code();
     get_higher_trouble_code();
 
-    return 0;
 }"
+
+STUFF_H="#ifndef STUFF_H
+#define STUFF_H
+
+void stuff();
+
+#endif"
 
 #####################################################################################################################################
 if [[ -d $PROJECT_NAME ]]; then
@@ -360,6 +360,11 @@ mkdir -p src
 cd src
 echo "$SRC_CMAKE" > CMakeLists.txt
 echo "$INT_MAIN" > main.cpp
+mkdir -p stuff
+cd stuff
+echo "$STUFF_CMAKE" > CMakeLists.txt
+echo "$STUFF_CPP" > stuff.cpp
+echo "$STUFF_H" > stuff.h
 cd $R_PATH
 
 #####################################################################################################################################
