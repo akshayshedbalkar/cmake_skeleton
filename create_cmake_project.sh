@@ -234,7 +234,7 @@ VERSION_CONFIG="#ifndef VERSION_H
 #define VERSION_H
 
 /* Version number is automatically updated by cmake */
-/* To update version, update PROJECT version in the root CMakeLists.txt */ 
+/* To update version, update PROJECT version in the root CMakeLists.txt */
 /* To update this file template, update project_root/config/version.h.in */
 
 #define VERSION_MAJOR @PROJECT_VERSION_MAJOR@
