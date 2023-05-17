@@ -112,7 +112,7 @@ configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${ho
 #Generate Doxygen documentation with 'make doc'
 find_package(Doxygen COMPONENTS dot)
 if(DOXYGEN_FOUND)
-    set(DOXYGEN_HTML_OUTPUT \"${CMAKE_SOURCE_DIR}/docs\")
+    set(DOXYGEN_HTML_OUTPUT \"\${CMAKE_BINARY_DIR}/docs\")
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE \"README.md\")
     set(DOXYGEN_HAVE_DOT \"YES\")
     set(DOXYGEN_CALL_GRAPH \"YES\")
@@ -146,8 +146,8 @@ configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOU
 #Static code analysis with cppcheck
 #Call: make sca
 add_custom_target(sca
-    COMMAND mkdir -p \${CMAKE_BINARY_DIR}/sca
-    COMMAND cppcheck --project=compile_commands.json -i\${CMAKE_SOURCE_DIR}/extern/modcom --enable=all --premium='cert-c-2016 --misra-c-2016 --bughunting' --force --inconclusive --xml --output-file=\${CMAKE_BINARY_DIR}/sca/results.xml --cppcheck-build-dir=\${CMAKE_BINARY_DIR}/sca --onfig-exclude=\"\${CMAKE_SOURCE_DIR}/extern/rte\" 
+    cmake -E make_directory \${CMAKE_BINARY_DIR}/sca
+    COMMAND cppcheck --project=compile_commands.json --enable=all --premium='cert-c-2016 --misra-c-2016 --bughunting' --force --inconclusive --xml --output-file=\${CMAKE_BINARY_DIR}/sca/results.xml --cppcheck-build-dir=\${CMAKE_BINARY_DIR}/sca
     COMMAND python \${CMAKE_SOURCE_DIR}/scripts/platform/cppcheck-htmlreport.py --file=\${CMAKE_BINARY_DIR}/sca/results.xml --report-dir=\${CMAKE_BINARY_DIR}/sca/html_report --source-dir=\${CMAKE_BINARY_DIR}/sca
     COMMAND find \${CMAKE_SOURCE_DIR} -type f -name \"*snalyzerinfo\" -not -path '\${CMAKE_BINARY_DIR}*' | xargs -r mv -f -t \${CMAKE_BINARY_DIR}/sca/
     COMMENT \"Performing static code analysis\"
@@ -162,7 +162,7 @@ target_include_directories(${PROJECT_NAME}_interface
     )
 
 ##List here the source files in current directory (Correct way to include sources)
-# target_sources($PROJECT_NAME 
+# target_sources(${PROJECT_NAME}_library
 #   PRIVATE main.cpp
 #   )
 
