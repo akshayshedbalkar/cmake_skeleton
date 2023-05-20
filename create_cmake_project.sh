@@ -291,6 +291,23 @@ for f in \$FILES; do
     printf \"\n#endif\" >> \$f
 done"
 
+EXTERN_C="#! /bin/bash
+
+#Usage: 
+#First argument: file extension (c, cpp etc)
+#Second argument: folders to include in search (\"folder1 folder2 ...\")
+
+FILES=\$(find \$2 -type f -name \"*.\$1\")
+
+for f in \$FILES; do
+    sed -i \"1i#endif\n\" \$f
+    sed -i \"1iextern \"C\" {\" \$f
+    sed -i \"1i#ifdef __cplusplus\" \$f
+    printf \"\n#ifdef __cplusplus\" >> \$f
+    printf \"\n}\" >> \$f
+    printf \"\n#endif\" >> \$f
+done"
+
 CHANGELOG_GENERATOR="#! /bin/bash
 
 previous_tag=0
@@ -427,6 +444,8 @@ mkdir -p scripts
 cd scripts
 echo "$TESTING_MACROS" > insert_macros_for_testing.sh
 chmod 700 insert_macros_for_testing.sh
+echo "$EXTERN_C" > insert_extern_c.sh
+chmod 700 insert_extern_c.sh
 echo "$CHANGELOG_GENERATOR" > generate_changelog.sh
 chmod 700 generate_changelog.sh
 echo "$FIX_INCLUDES" > fix_includes.sh
