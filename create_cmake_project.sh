@@ -86,9 +86,9 @@ configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\" \"\${C
 add_subdirectory(extern)
 
 ##Compiler defines, options and features
-#target_compile_features($PROJECT_NAME PRIVATE cxx_std_20)
-#target_compile_options($PROJECT_NAME PRIVATE -Wall)
-#target_compile_definitions($PROJECT_NAME PRIVATE foo)
+#target_compile_features(${PROJECT_NAME}_library PUBLIC cxx_std_20)
+#target_compile_options(${PROJECT_NAME}_library PUBLIC -Wall)
+#target_compile_definitions(${PROJECT_NAME}_library PUBLIC foo)
 
 ##Linker options, external libraries/objects to link against
 target_link_libraries(${PROJECT_NAME}_library PRIVATE ${PROJECT_NAME}_interface)
