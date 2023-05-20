@@ -104,10 +104,19 @@ set_target_properties($PROJECT_NAME
 
 ##Helpful commands for various functionalities if needed
 
+# Ensure dependencies exist
+# find_package(Boost COMPONENTS filesystem system iostreams)
+
 #Install git hooks correctly even in git submodules
 execute_process(COMMAND git rev-parse --path-format=absolute --git-path hooks OUTPUT_VARIABLE hook_dir OUTPUT_STRIP_TRAILING_WHITESPACE)
 configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/pre-commit.in\" \"\${hook_dir}/pre-commit\" COPYONLY FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${hook_dir}/prepare-commit-msg\" COPYONLY FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+
+# Update version numbers throughout the project
+configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOURCE_DIR}/src/version.h\")
+# FILE(READ \${CMAKE_SOURCE_DIR}/src/project.arxml version)
+# STRING(REGEX REPLACE \"VERSION_MAJOR\ [0-9]*\" \"VERSION_MAJOR\ \${${PROJECT_NAME}_VERSION_MAJOR}\" version \"\${version}\")
+# FILE(WRITE \${CMAKE_SOURCE_DIR}/src/project.arxml \"\${version}\")
 
 #Generate Doxygen documentation with 'make doc'
 find_package(Doxygen COMPONENTS dot)
@@ -126,8 +135,29 @@ if(DOXYGEN_FOUND)
     doxygen_add_docs(doc \${CMAKE_SOURCE_DIR})
 endif()
 
-# Ensure dependencies exist
-# find_package(Boost COMPONENTS filesystem system iostreams)
+#Compute code complexity with 'make ccn'
+find_program(LIZARD \"lizard\")
+if (LIZARD)
+configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/ccn.sh.in\" \"\${CMAKE_SOURCE_DIR}/scripts/ccn.sh\" FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+add_custom_target(ccn
+    cmake -E make_directory \${CMAKE_BINARY_DIR}/ccn
+    COMMAND \${CMAKE_SOURCE_DIR}/scripts/ccn.sh
+    COMMENT \"Calculating code complexity\"
+    )
+endif()
+
+#Static code analysis with cppcheck
+#Call: make sca
+find_program(CPPCHECK \"cppcheck\")
+if (CPPCHECK)
+add_custom_target(sca
+    cmake -E make_directory \${CMAKE_BINARY_DIR}/sca
+    COMMAND cppcheck --project=compile_commands.json --enable=all --premium='cert-c-2016 --misra-c-2016 --bughunting' --force --inconclusive --xml --output-file=\${CMAKE_BINARY_DIR}/sca/results.xml --cppcheck-build-dir=\${CMAKE_BINARY_DIR}/sca
+    COMMAND \${CMAKE_SOURCE_DIR}/scripts/cppcheck-htmlreport --file=\${CMAKE_BINARY_DIR}/sca/results.xml --report-dir=\${CMAKE_BINARY_DIR}/sca/html_report --source-dir=\${CMAKE_BINARY_DIR}/sca
+    COMMAND find \${CMAKE_SOURCE_DIR} -type f -name \"*snalyzerinfo\" -not -path '\${CMAKE_BINARY_DIR}*' | xargs -r mv -f -t \${CMAKE_BINARY_DIR}/sca/
+    COMMENT \"Performing static code analysis\"
+    )
+endif()
 
 # OS dependant compiler flags / tasks
 # if(\${CMAKE_SYSTEM_NAME} MATCHES \"Linux\")
@@ -140,23 +170,7 @@ endif()
 #    COMMAND \${CMAKE_COMMAND} -E copy_if_different 
 #        \"\${CMAKE_SOURCE_DIR}/extern/lib/libcurl-x64.dll\"
 #        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-#    )
-
-# Update version numbers throughout the project
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOURCE_DIR}/src/version.h\")
-# FILE(READ \${CMAKE_SOURCE_DIR}/src/project.arxml version)
-# STRING(REGEX REPLACE \"VERSION_MAJOR\ [0-9]*\" \"VERSION_MAJOR\ \${${PROJECT_NAME}_VERSION_MAJOR}\" version \"\${version}\")
-# FILE(WRITE \${CMAKE_SOURCE_DIR}/src/project.arxml \"\${version}\")
-#
-#Static code analysis with cppcheck
-#Call: make sca
-add_custom_target(sca
-    cmake -E make_directory \${CMAKE_BINARY_DIR}/sca
-    COMMAND cppcheck --project=compile_commands.json --enable=all --premium='cert-c-2016 --misra-c-2016 --bughunting' --force --inconclusive --xml --output-file=\${CMAKE_BINARY_DIR}/sca/results.xml --cppcheck-build-dir=\${CMAKE_BINARY_DIR}/sca
-    COMMAND python \${CMAKE_SOURCE_DIR}/scripts/platform/cppcheck-htmlreport.py --file=\${CMAKE_BINARY_DIR}/sca/results.xml --report-dir=\${CMAKE_BINARY_DIR}/sca/html_report --source-dir=\${CMAKE_BINARY_DIR}/sca
-    COMMAND find \${CMAKE_SOURCE_DIR} -type f -name \"*snalyzerinfo\" -not -path '\${CMAKE_BINARY_DIR}*' | xargs -r mv -f -t \${CMAKE_BINARY_DIR}/sca/
-    COMMENT \"Performing static code analysis\"
-    )"
+#    )"
 
 SRC_CMAKE="##Following subdirectories are part of the project
 add_subdirectory(stuff)
@@ -277,6 +291,43 @@ for f in \$FILES; do
     printf \"\n#endif\" >> \$f
 done"
 
+CHANGELOG_GENERATOR="#! /bin/bash
+
+previous_tag=0
+
+for current_tag in \$(git tag --sort=-creatordate|grep release)
+do
+    var=\"\"
+
+    if [ \"\$previous_tag\" != 0 ];then
+        tag_date=$(git log -1 --pretty=format:'%ad' --date=short ${previous_tag})
+
+        var=\$var\$(git log \${current_tag}...\${previous_tag} --oneline --reverse | grep -oP \"SWFPMII-\d+\")
+        var=\$(echo \"\$var\"|sort -u)
+        var=\$(echo \"\$var\"| sed 's_\$_  _')
+
+        printf \"## \${previous_tag} (\${tag_date})\"
+        if [ ! -z \"\${var// }\" ]; then
+            printf \"\n\"
+            echo \"\$var\"
+            printf \"\n\"
+        else
+            echo \"  \"
+        fi
+    fi
+
+    previous_tag=\${current_tag}
+done"
+
+CCN="#! /bin/bash
+
+#pip install lizard
+
+lizard -m \"@CMAKE_SOURCE_DIR@/src\" > @CMAKE_BINARY_DIR@/ccn/ccn.txt
+lizard -H -m \"@CMAKE_SOURCE_DIR@/src\" > @CMAKE_BINARY_DIR@/ccn/ccn.html"
+
+FIX_INCLUDES="iwyu-fix-includes --comments --update_comments --nosafe_headers --reorder < includes.txt"
+
 #####################################################################################################################################
 GIT_FORMAT="#! /bin/bash
 
@@ -361,6 +412,7 @@ mkdir cmake
 cd cmake
 echo "$VERSION_CONFIG"> version.h.in
 echo "$CODE_GENERATOR">generate_files.sh.in
+echo "$CCN" > ccn.sh.in
 chmod 700 generate_files.sh.in
 cd $R_PATH
 
@@ -375,6 +427,12 @@ mkdir -p scripts
 cd scripts
 echo "$TESTING_MACROS" > insert_macros_for_testing.sh
 chmod 700 insert_macros_for_testing.sh
+echo "$CHANGELOG_GENERATOR" > generate_changelog.sh
+chmod 700 generate_changelog.sh
+echo "$FIX_INCLUDES" > fix_includes.sh
+chmod 700 fix_includes.sh
+curl -Lo cppcheck-htmlreport https://raw.githubusercontent.com/danmar/cppcheck/main/htmlreport/cppcheck-htmlreport
+chmod 700 cppcheck-htmlreport
 cd $R_PATH
 
 mkdir -p extern
