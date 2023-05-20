@@ -287,7 +287,7 @@ FILES=\$(find \$2 -type f -name \"*.\$1\")
 for f in \$FILES; do
     ff=\${f##*/} 
     ff=\${ff%.\$1}
-    sed -i \"1i#if !defined(REMOVE_ALL) || defined(KEEP_\$ff)\n\" \$f
+    sed -i \"1i#if (!defined(REMOVE_\$ff)) && (!defined(REMOVE_ALL) || defined(KEEP_\$ff))\n\" \$f
     printf \"\n#endif\" >> \$f
 done"
 
