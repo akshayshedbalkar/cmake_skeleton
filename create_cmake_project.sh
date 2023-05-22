@@ -82,7 +82,7 @@ add_executable($PROJECT_NAME src/main.cpp)
 add_subdirectory(src)
 
 #Include external code genertors
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\" \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\")
+configure_file(\"\${PROJECT_SOURCE_DIR}/config/cmake/generate_files.sh.in\" \"\${PROJECT_SOURCE_DIR}/scripts/generate_files.sh\")
 add_subdirectory(extern)
 
 ##Compiler defines, options and features
@@ -97,9 +97,9 @@ target_link_libraries($PROJECT_NAME PRIVATE ${PROJECT_NAME}_interface ${PROJECT_
 ##Set target properties
 set_target_properties($PROJECT_NAME
     PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/bin\"
-        ARCHIVE_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/lib\"
-        LIBRARY_OUTPUT_DIRECTORY \"\${CMAKE_BINARY_DIR}/lib\"
+        RUNTIME_OUTPUT_DIRECTORY \"\${PROJECT_BINARY_DIR}/bin\"
+        ARCHIVE_OUTPUT_DIRECTORY \"\${PROJECT_BINARY_DIR}/lib\"
+        LIBRARY_OUTPUT_DIRECTORY \"\${PROJECT_BINARY_DIR}/lib\"
     )
 
 ##Helpful commands for various functionalities if needed
@@ -109,19 +109,19 @@ set_target_properties($PROJECT_NAME
 
 #Install git hooks correctly even in git submodules
 execute_process(COMMAND git rev-parse --path-format=absolute --git-path hooks OUTPUT_VARIABLE hook_dir OUTPUT_STRIP_TRAILING_WHITESPACE)
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/pre-commit.in\" \"\${hook_dir}/pre-commit\" COPYONLY FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${hook_dir}/prepare-commit-msg\" COPYONLY FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/pre-commit.in\" \"\${hook_dir}/pre-commit\" COPYONLY FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+configure_file(\"\${PROJECT_SOURCE_DIR}/config/git/prepare-commit-msg.in\" \"\${hook_dir}/prepare-commit-msg\" COPYONLY FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 
 # Update version numbers throughout the project
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/version.h.in\" \"\${CMAKE_SOURCE_DIR}/src/version.h\")
-# FILE(READ \${CMAKE_SOURCE_DIR}/src/project.arxml version)
+configure_file(\"\${PROJECT_SOURCE_DIR}/config/cmake/version.h.in\" \"\${PROJECT_SOURCE_DIR}/src/version.h\")
+# FILE(READ \${PROJECT_SOURCE_DIR}/src/project.arxml version)
 # STRING(REGEX REPLACE \"VERSION_MAJOR\ [0-9]*\" \"VERSION_MAJOR\ \${${PROJECT_NAME}_VERSION_MAJOR}\" version \"\${version}\")
-# FILE(WRITE \${CMAKE_SOURCE_DIR}/src/project.arxml \"\${version}\")
+# FILE(WRITE \${PROJECT_SOURCE_DIR}/src/project.arxml \"\${version}\")
 
 #Generate Doxygen documentation with 'make doc'
 find_package(Doxygen COMPONENTS dot)
 if(DOXYGEN_FOUND)
-    set(DOXYGEN_HTML_OUTPUT \"\${CMAKE_BINARY_DIR}/docs\")
+    set(DOXYGEN_HTML_OUTPUT \"\${PROJECT_BINARY_DIR}/docs\")
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE \"README.md\")
     set(DOXYGEN_ALWAYS_DETAILED_SEC \"YES\")
     set(DOXYGEN_EXTRACT_ALL \"YES\")
@@ -132,16 +132,16 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_CALLER_GRAPH \"YES\")
     set(DOXYGEN_UML_LOOK \"YES\")
     set(DOXYGEN_DOT_UML_DETAILS \"YES\")
-    doxygen_add_docs(doc \${CMAKE_SOURCE_DIR})
+    doxygen_add_docs(doc \${PROJECT_SOURCE_DIR})
 endif()
 
 #Compute code complexity with 'make ccn'
 find_program(LIZARD \"lizard\")
 if (LIZARD)
-configure_file(\"\${CMAKE_SOURCE_DIR}/config/cmake/ccn.sh.in\" \"\${CMAKE_SOURCE_DIR}/scripts/ccn.sh\" FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+configure_file(\"\${PROJECT_SOURCE_DIR}/config/cmake/ccn.sh.in\" \"\${PROJECT_SOURCE_DIR}/scripts/ccn.sh\" FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 add_custom_target(ccn
-    cmake -E make_directory \${CMAKE_BINARY_DIR}/ccn
-    COMMAND \${CMAKE_SOURCE_DIR}/scripts/ccn.sh
+    cmake -E make_directory \${PROJECT_BINARY_DIR}/ccn
+    COMMAND \${PROJECT_SOURCE_DIR}/scripts/ccn.sh
     COMMENT \"Calculating code complexity\"
     )
 endif()
@@ -151,10 +151,10 @@ endif()
 find_program(CPPCHECK \"cppcheck\")
 if (CPPCHECK)
 add_custom_target(sca
-    cmake -E make_directory \${CMAKE_BINARY_DIR}/sca
-    COMMAND cppcheck --project=compile_commands.json --enable=all --premium='cert-c-2016 --misra-c-2016 --bughunting' --force --inconclusive --xml --output-file=\${CMAKE_BINARY_DIR}/sca/results.xml --cppcheck-build-dir=\${CMAKE_BINARY_DIR}/sca
-    COMMAND \${CMAKE_SOURCE_DIR}/scripts/cppcheck-htmlreport --file=\${CMAKE_BINARY_DIR}/sca/results.xml --report-dir=\${CMAKE_BINARY_DIR}/sca/html_report --source-dir=\${CMAKE_BINARY_DIR}/sca
-    COMMAND find \${CMAKE_SOURCE_DIR} -type f -name \"*snalyzerinfo\" -not -path '\${CMAKE_BINARY_DIR}*' | xargs -r mv -f -t \${CMAKE_BINARY_DIR}/sca/
+    cmake -E make_directory \${PROJECT_BINARY_DIR}/sca
+    COMMAND cppcheck --project=compile_commands.json --enable=all --premium='cert-c-2016 --misra-c-2016 --bughunting' --force --inconclusive --xml --output-file=\${PROJECT_BINARY_DIR}/sca/results.xml --cppcheck-build-dir=\${PROJECT_BINARY_DIR}/sca
+    COMMAND \${PROJECT_SOURCE_DIR}/scripts/cppcheck-htmlreport --file=\${PROJECT_BINARY_DIR}/sca/results.xml --report-dir=\${PROJECT_BINARY_DIR}/sca/html_report --source-dir=\${PROJECT_BINARY_DIR}/sca
+    COMMAND find \${PROJECT_SOURCE_DIR} -type f -name \"*snalyzerinfo\" -not -path '\${PROJECT_BINARY_DIR}*' | xargs -r mv -f -t \${PROJECT_BINARY_DIR}/sca/
     COMMENT \"Performing static code analysis\"
     )
 endif()
@@ -168,7 +168,7 @@ endif()
 # add_custom_command(TARGET ${PROJECT_NAME} 
 #    POST_BUILD
 #    COMMAND \${CMAKE_COMMAND} -E copy_if_different 
-#        \"\${CMAKE_SOURCE_DIR}/extern/lib/libcurl-x64.dll\"
+#        \"\${PROJECT_SOURCE_DIR}/extern/lib/libcurl-x64.dll\"
 #        $<TARGET_FILE_DIR:${PROJECT_NAME}>
 #    )"
 
@@ -223,8 +223,8 @@ set(generated_directories
 ##Invoke code generator here. OUTPUT artifacts are cleaned on \"make clean\". 
 add_custom_command(
     OUTPUT \${generated_sources} \${generated_directories}
-    COMMAND \"\${CMAKE_SOURCE_DIR}/scripts/generate_files.sh\"
-    DEPENDS \"\${CMAKE_SOURCE_DIR}/config/cmake/generate_files.sh.in\"
+    COMMAND \"\${PROJECT_SOURCE_DIR}/scripts/generate_files.sh\"
+    DEPENDS \"\${PROJECT_SOURCE_DIR}/config/cmake/generate_files.sh.in\"
     COMMENT \"Generating Gen files ...\"
     VERBATIM
     )
@@ -265,16 +265,16 @@ VERSION_CONFIG="#ifndef VERSION_H
 
 CODE_GENERATOR=" #! /bin/bash
 
-mkdir -p \${CMAKE_SOURCE_DIR}/extern/gen
+mkdir -p \${PROJECT_SOURCE_DIR}/extern/gen
 echo \"#ifndef GEN_H 
 #define GEN_H
 const int get_trouble_code();
 const int get_higher_trouble_code();
-#endif\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated.h
+#endif\" > \${PROJECT_SOURCE_DIR}/extern/gen/generated.h
 echo \"#include \\\"generated.h\\\"
-const int get_trouble_code(){return 1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated_1.cpp
+const int get_trouble_code(){return 1;}\" > \${PROJECT_SOURCE_DIR}/extern/gen/generated_1.cpp
 echo \"#include \\\"generated.h\\\"
-const int get_higher_trouble_code(){return 1+1;}\" > \${CMAKE_SOURCE_DIR}/extern/gen/generated_2.cpp"
+const int get_higher_trouble_code(){return 1+1;}\" > \${PROJECT_SOURCE_DIR}/extern/gen/generated_2.cpp"
 
 TESTING_MACROS="#! /bin/bash
 
@@ -340,8 +340,8 @@ CCN="#! /bin/bash
 
 #pip install lizard
 
-lizard -m \"@CMAKE_SOURCE_DIR@/src\" > @CMAKE_BINARY_DIR@/ccn/ccn.txt
-lizard -H -m \"@CMAKE_SOURCE_DIR@/src\" > @CMAKE_BINARY_DIR@/ccn/ccn.html"
+lizard -m \"@PROJECT_SOURCE_DIR@/src\" > @PROJECT_BINARY_DIR@/ccn/ccn.txt
+lizard -H -m \"@PROJECT_SOURCE_DIR@/src\" > @PROJECT_BINARY_DIR@/ccn/ccn.html"
 
 FIX_INCLUDES="iwyu-fix-includes --comments --update_comments --nosafe_headers --reorder < includes.txt"
 
