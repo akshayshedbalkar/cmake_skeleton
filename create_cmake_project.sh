@@ -455,7 +455,7 @@ if [[ $? -ne 0 ]]; then
     read -p "Enter NTUSER username: " uname
     read -s -p "Enter NTUSER password: " pw
     curl -Lo cppcheck-htmlreport --proxy "http://$uname:$pw@proxy.in.audi.vwg:8080" https://raw.githubusercontent.com/danmar/cppcheck/main/htmlreport/cppcheck-htmlreport &>/dev/null
-elif
+fi
 chmod 700 cppcheck-htmlreport
 cd $R_PATH
 
