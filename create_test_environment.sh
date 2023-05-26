@@ -222,11 +222,11 @@ uint32_t factorial( uint32_t number ) {
 }
 
 TEST_CASE( \"dummy_catch2\", \"[factorial]\" ) {
-    REQUIRE( factorial( 1) == 1 );
-    REQUIRE( factorial( 2) == 2 );
-    REQUIRE( factorial( 3) == 6 );
-    REQUIRE( factorial(10) == 3'628'800 );
-    REQUIRE( factorial( 0) == 1 );
+    CHECK( factorial( 1) == 1 );
+    CHECK( factorial( 2) == 2 );
+    CHECK( factorial( 3) == 6 );
+    CHECK( factorial(10) == 3'628'800 );
+    CHECK( factorial( 0) == 1 );
 }
 
 
@@ -237,8 +237,8 @@ DEFINE_FFF_GLOBALS;
 FAKE_VOID_FUNC(DISPLAY_init);
 TEST_CASE(\"dummy_fff\", \"[dummy]\")
 {
-    REQUIRE(DISPLAY_init_fake.call_count == 0);
-    REQUIRE(DISPLAY_init_fake.call_count == 1);
+    CHECK(DISPLAY_init_fake.call_count == 0);
+    CHECK(DISPLAY_init_fake.call_count == 1);
 }
 "
 #####################################################################################################################################
