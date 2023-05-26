@@ -80,6 +80,7 @@ add_executable($PROJECT_NAME test/test.cpp)
 
 ##Subdirectories which are part of the project
 add_subdirectory(test)
+add_subdirectory(development_repository)
 
 ##Compiler defines, options and features
 #target_compile_features(${PROJECT_NAME}_library PUBLIC cxx_std_20)
@@ -142,6 +143,24 @@ target_include_directories(${PROJECT_NAME}_interface
 target_sources(${PROJECT_NAME}_library
   PRIVATE test.cpp
   )
+
+##All .cpp files in this directory are source files (Quick and dirty way to include sources)
+#file(GLOB SOURCES \"*.cpp\")
+#target_sources($PROJECT_NAME PRIVATE \${SOURCES})"
+
+
+DUMMY_CMAKE="##Following subdirectories are part of the project
+#add_subdirectory(stuff)
+
+##All .h files in this directory are to be included
+target_include_directories(${PROJECT_NAME}_interface 
+    INTERFACE \${CMAKE_CURRENT_SOURCE_DIR}
+    )
+
+##List here the source files in current directory (Correct way to include sources)
+# target_sources(${PROJECT_NAME}_library
+#   PRIVATE test.cpp
+#   )
 
 ##All .cpp files in this directory are source files (Quick and dirty way to include sources)
 #file(GLOB SOURCES \"*.cpp\")
@@ -262,6 +281,12 @@ if [[ $? -ne 0 ]]; then
     curl -Lo fff.h --proxy "http://$uname:$pw@proxy.in.audi.vwg:8080" https://raw.githubusercontent.com/meekrosoft/fff/master/fff.h &>/dev/null
 fi
 cd $R_PATH
+
+mkdir -p development_repository
+cd development_repository
+echo "$DUMMY_CMAKE" > CMakeLists.txt
+cd $R_PATH
+
 
 #####################################################################################################################################
 echo "Setting up git and clang-format..."
