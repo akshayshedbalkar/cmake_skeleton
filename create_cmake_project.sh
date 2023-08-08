@@ -317,7 +317,7 @@ do
     var=\"\"
 
     if [ \"\$previous_tag\" != 0 ];then
-        tag_date=$(git log -1 --pretty=format:'%ad' --date=short ${previous_tag})
+        tag_date=\$(git log -1 --pretty=format:'%ad' --date=short \${previous_tag})
 
         var=\$var\$(git log \${current_tag}...\${previous_tag} --oneline --reverse | grep -oP \"SWFPMII-\d+\")
         var=\$(echo \"\$var\"|sort -u)
